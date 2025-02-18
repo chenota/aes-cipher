@@ -42,8 +42,8 @@ int main(int argc, char *argv[]) {
     uint64_t text = 0;
     uint64_t key = 0;
     // Fill blocks
-    text = strtoull(argv[optind], NULL, 16);
-    key = strtoull(argv[optind + 1], NULL, 16);
+    text = strtoull(argv[optind], NULL, 32);
+    key = strtoull(argv[optind + 1], NULL, 32);
     // Exit success
     return 0;
 }
