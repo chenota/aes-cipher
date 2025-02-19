@@ -76,9 +76,8 @@ int main(int argc, char *argv[]) {
     uint64_t result_upper = 0;
     uint64_t result_lower = 0;
     for(size_t i = 0; i < 8; i++) {
-        result_upper = ((uint64_t) text[i % 4][i / 4]) << (56 - (i * 8));
-        result_lower = ((uint64_t) text[(i + 8) % 4][(i + 8) / 4]) << (56 - (i * 8));
-        std::cout << (i + 8) % 4 << " " << (i + 8) / 4 << std::endl;
+        result_upper |= ((uint64_t) text[i % 4][i / 4]) << (56 - (i * 8));
+        result_lower |= ((uint64_t) text[(i + 8) % 4][(i + 8) / 4]) << (56 - (i * 8));
     }
     // Print result
     std::cout << std::setw(32) << std::setfill('0') << std::hex << result_upper << std::setw(32) << std::setfill('0') << std::hex << result_lower << std::endl;
