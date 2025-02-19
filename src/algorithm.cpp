@@ -62,3 +62,7 @@ void addRoundKey(uint8_t bytes[4][4], uint8_t key[4][4]) {
         }
     }
 }
+
+void aes(uint8_t text[4][4], uint8_t key[4][4], bool verbose) {
+
+}

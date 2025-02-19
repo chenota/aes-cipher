@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <stdint.h>
+#include "algorithm.hpp"
 
 int main(int argc, char *argv[]) {
     // Argument parsing
@@ -68,5 +69,17 @@ int main(int argc, char *argv[]) {
         // Fill value from hexit buffer
         key[i % 4][i / 4] = strtoul(hexit_buf, NULL, 16);
     }
+    // Run AES algorithm
+    aes(text, key, print_mode == VERBOSE);
+    // Read result into integers
+    uint64_t result_upper = 0;
+    uint64_t result_lower = 0;
+    for(size_t i = 0; i < 8; i++) {
+        result_upper = text[i % 4][i / 4] << (56 - (i * 8));
+        result_lower = text[(i + 32) % 4][(i + 32) / 4] << (56 - (i * 8));
+    }
+    // Print result
+    std::cout << std::hex << result_upper << result_lower << std::endl;
+    // Return success
     return 0;
 }
