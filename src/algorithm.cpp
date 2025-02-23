@@ -75,6 +75,12 @@ void keyG(uint8_t word[4], size_t round) {
 }
 
 void aes(uint8_t text[4][4], uint8_t key[4][4], uint8_t result[4][4], bool encrypt, bool verbose) {
+    // Verbose print
+    if(verbose) {
+        std::cout << "Round 0" << std::endl;
+        std::cout << "\tKey: ";
+        for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (int) key[j][k] << (j == 3 && k == 3 ? '\n' : ' ');
+    }
     // Key storage
     uint8_t keys[48][4];
     // First four items in keys array are original key
@@ -84,13 +90,14 @@ void aes(uint8_t text[4][4], uint8_t key[4][4], uint8_t result[4][4], bool encry
         // Base address for this word
         size_t base = i * 4;
         // Copy last word
-        uint8_t lastCopy[4] = { keys[base-1][0], keys[base-1][1], keys[base-1][2], keys[base-1][3] };
+        uint8_t lastCopy[4];
+        for(size_t j = 0; j < 4; j++) lastCopy[j] = keys[base - 1][j];
         // Perform G on lastCopy
         keyG(lastCopy, i - 1);
         // XOR w/ previous base word
         for(size_t j = 0; j < 4; j++) keys[base][j] = lastCopy[j] ^ keys[base - 4][j];
         // XOR rest
-        for(size_t j = 1; j < 4; j++) for(size_t k = 0; j < 4; k++) keys[base + j][k] = keys[base + j - 1][k] ^ keys[base + j - 4][k];
+        for(size_t j = 1; j < 4; j++) for(size_t k = 0; k < 4; k++) keys[base + j][k] = keys[base + j - 1][k] ^ keys[base + j - 4][k];
     }
     // Ten rounds
     for(size_t i = 0; i < 10; i++) {
@@ -102,7 +109,7 @@ void aes(uint8_t text[4][4], uint8_t key[4][4], uint8_t result[4][4], bool encry
         if(verbose) {
             std::cout << "Round " << i + 1 << std::endl;
             std::cout << "\tKey: ";
-            for(size_t j = 0; j < 4; j++) for(size_t k = 0; j < 4; k++) std::cout << std::hex << std::setw(2) << std::setfill('0') << roundKey[j][k];
+            for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (int) roundKey[j][k] << (j == 3 && k == 3 ? '\n' : ' ');
         };
         
     }
