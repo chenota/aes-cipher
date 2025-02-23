@@ -40,5 +40,5 @@ The plaintexts match, which is a good sign that the program works!
 
 The following sources were crucial for building this project:
 - Cryptography and Network Security: Principles and Practice 7e by William Stallings
-- [The DES Algorithm Illustrated](https://page.math.tu-berlin.de/~kant/teaching/hess/krypto-ws2006/des.htm)
-- [JavaScript DES Example](https://people.duke.edu/%7Etkb13/courses/ncsu-csc405-2015fa/RESOURCES/JS-DES.shtml)
+- [AES Example](https://www.kavaliro.com/wp-content/uploads/2014/03/AES.pdf)
+- [Advanced Encryption Standard](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
