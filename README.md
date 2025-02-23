@@ -24,12 +24,14 @@ We can verify the program correctness by encrypting some plaintext, decryping th
 
 Encrypting some plaintext:
 ```
-$ 
+$ ./aes.out -e 54776F204F6E65204E696E652054776F 5468617473206D79204B756E67204675
+29c3505f571420f6402299b31a02d73a
 ```
 
 Decrypting the ciphertext:
 ```
-$ 
+$ ./aes.out -d 29c3505f571420f6402299b31a02d73a 5468617473206D79204B756E67204675
+54776f204f6e65204e696e652054776f
 ```
 
 The plaintexts match, which is a good sign that the program works!
