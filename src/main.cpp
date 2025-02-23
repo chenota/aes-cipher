@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     }
     // Cast text and key to strings
     std::string text_str = argv[optind];
-    std::string key_str = argv[optind];
+    std::string key_str = argv[optind + 1];
     // Buffers to hold strings for text and key
     char text_buf[32] = { '0' };
     char key_buf[32] = { '0' };
@@ -56,19 +56,16 @@ int main(int argc, char *argv[]) {
     uint8_t key[4][4] = { 0 };
     // Fill blocks
     for(size_t i = 0; i < 16; i++) {
-        // Fill hexit buffer
+        // Fill hexit buffer (text)
         hexit_buf[0] = text_buf[i * 2];
         hexit_buf[1] = text_buf[(i * 2) + 1];
         // Fill value from hexit buffer
-        text[i % 4][i / 4] = strtoul(hexit_buf, NULL, 16);
-    }
-    // Fill blocks
-    for(size_t i = 0; i < 16; i++) {
-        // Fill hexit buffer
+        text[i / 4][i % 4] = strtoul(hexit_buf, NULL, 16);
+        // Fill hexit buffer (key)
         hexit_buf[0] = key_buf[i * 2];
         hexit_buf[1] = key_buf[(i * 2) + 1];
         // Fill value from hexit buffer
-        key[i % 4][i / 4] = strtoul(hexit_buf, NULL, 16);
+        key[i / 4][i % 4] = strtoul(hexit_buf, NULL, 16);
     }
     // Result buffer
     uint8_t result[4][4];
