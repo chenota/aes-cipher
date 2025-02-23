@@ -45,21 +45,21 @@ void invserseShiftRows(uint8_t bytes[4][4]) {
     uint8_t bytes_copy[4][4];
     std::copy(&bytes[0][0], &bytes[0][0]+16, &bytes_copy[0][0]);
     // Update rows of original matrix
-    bytes[1][1] = bytes_copy[0][1];
-    bytes[2][2] = bytes_copy[0][2];
-    bytes[3][3] = bytes_copy[0][3];
-
-    bytes[2][1] = bytes_copy[1][1];
-    bytes[3][2] = bytes_copy[1][2];
+    bytes[0][1] = bytes_copy[3][1];
+    bytes[0][2] = bytes_copy[2][2];
     bytes[0][3] = bytes_copy[1][3];
 
-    bytes[3][1] = bytes_copy[2][1];
-    bytes[0][2] = bytes_copy[2][2];
+    bytes[1][1] = bytes_copy[0][1];
+    bytes[1][2] = bytes_copy[3][2];
     bytes[1][3] = bytes_copy[2][3];
 
-    bytes[0][1] = bytes_copy[3][1];
-    bytes[1][2] = bytes_copy[3][2];
+    bytes[2][1] = bytes_copy[1][1];
+    bytes[2][2] = bytes_copy[0][2];
     bytes[2][3] = bytes_copy[3][3];
+
+    bytes[3][1] = bytes_copy[2][1];
+    bytes[3][2] = bytes_copy[1][2];
+    bytes[3][3] = bytes_copy[0][3];
 }
 
 uint8_t fastExponent(uint8_t x, uint8_t n) {
