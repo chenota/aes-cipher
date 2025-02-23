@@ -1,6 +1,6 @@
 #include "algorithm.hpp"
 
-void subBytes(uint8_t bytes[4][4], uint8_t SBOX[8][8]) {
+void subBytes(uint8_t bytes[4][4], const uint8_t SBOX[16][16]) {
     // Substitute each byte as per selected s-box
     for(uint8_t i = 0; i < 4; i++) {
         for(uint8_t j = 0; j < 4; j++) {
@@ -114,6 +114,11 @@ void aes(uint8_t text[4][4], uint8_t key[4][4], uint8_t result[4][4], bool encry
             std::cout << " Key: ";
             for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (int) roundKey[j][k] << (j == 3 && k == 3 ? '\n' : ' ');
         };
-        
+        // SubBytes step
+        subBytes(text, FORWARD_S_BOX);
+        if(verbose) {
+            std::cout << " SubBytes: ";
+            for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (int) text[j][k] << (j == 3 && k == 3 ? '\n' : ' ');
+        }
     }
 }
