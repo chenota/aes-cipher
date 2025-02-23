@@ -74,15 +74,19 @@ void keyG(uint8_t word[4], size_t round) {
     word[0] = word[0] ^ ROUND_CONSTANT[round];
 }
 
+void print44(uint8_t text[4][4]) {
+    for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (int) text[j][k] << (j == 3 && k == 3 ? '\n' : ' ');
+}
+
 void aes(uint8_t text[4][4], uint8_t key[4][4], uint8_t result[4][4], bool encrypt, bool verbose) {
     // Verbose print
     if(verbose) {
         std::cout << "Round 0" << std::endl;
         std::cout << " Key: ";
-        for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (int) key[j][k] << (j == 3 && k == 3 ? '\n' : ' ');
+        print44(key);
         std::cout << " Add RoundKey: ";
         addRoundKey(text, key);
-        for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (int) text[j][k] << (j == 3 && k == 3 ? '\n' : ' ');
+        print44(text);
     }
     // Key storage
     uint8_t keys[48][4];
@@ -111,20 +115,32 @@ void aes(uint8_t text[4][4], uint8_t key[4][4], uint8_t result[4][4], bool encry
         // Verbose print
         if(verbose) {
             std::cout << "Round " << std::dec << i + 1 << std::endl;
-            std::cout << " Key: ";
-            for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (int) roundKey[j][k] << (j == 3 && k == 3 ? '\n' : ' ');
+            std::cout << " Key:           ";
+            print44(text);
         };
         // SubBytes step
         subBytes(text, FORWARD_S_BOX);
         if(verbose) {
-            std::cout << " SubBytes: ";
-            for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (int) text[j][k] << (j == 3 && k == 3 ? '\n' : ' ');
+            std::cout << " SubBytes:      ";
+            print44(text);
         }
         // ShiftRows step
         shiftRows(text);
         if(verbose) {
-            std::cout << " ShiftRows: ";
-            for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (int) text[j][k] << (j == 3 && k == 3 ? '\n' : ' ');
+            std::cout << " ShiftRows:     ";
+            print44(text);
+        }
+        // MixColumns step
+        mixColumns(text);
+        if(verbose) {
+            std::cout << " MixColumns:    ";
+            print44(text);
+        }
+        // Add round key step
+        addRoundKey(text, roundKey);
+        if(verbose) {
+            std::cout << " Add Round Key: ";
+            print44(text);
         }
     }
 }
