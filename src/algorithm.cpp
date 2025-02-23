@@ -95,9 +95,9 @@ void aes(uint8_t text[4][4], uint8_t key[4][4], uint8_t result[4][4], bool encry
     // Verbose print
     if(verbose) {
         std::cout << "Round 0" << std::endl;
-        std::cout << " Key: ";
+        std::cout << " Key:           ";
         print44(key);
-        std::cout << " Add RoundKey: ";
+        std::cout << " Add Round Key: ";
         addRoundKey(text, key);
         print44(text);
     }
