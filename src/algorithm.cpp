@@ -74,7 +74,7 @@ void keyG(uint8_t word[4], size_t round) {
     word[0] = word[0] ^ ROUND_CONSTANT[round];
 }
 
-void aes(uint8_t text[4][4], uint8_t key[4][4], bool verbose) {
+void aes(uint8_t text[4][4], uint8_t key[4][4], uint8_t result[4][4], bool encrypt, bool verbose) {
     // Key storage
     uint8_t keys[48][4];
     // First four items in keys array are original key
@@ -91,5 +91,19 @@ void aes(uint8_t text[4][4], uint8_t key[4][4], bool verbose) {
         for(size_t j = 0; j < 4; j++) keys[base][j] = lastCopy[j] ^ keys[base - 4][j];
         // XOR rest
         for(size_t j = 1; j < 4; j++) for(size_t k = 0; j < 4; k++) keys[base + j][k] = keys[base + j - 1][k] ^ keys[base + j - 4][k];
+    }
+    // Ten rounds
+    for(size_t i = 0; i < 10; i++) {
+        // Key
+        uint8_t roundKey[4][4];
+        // Fill round key
+        for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) roundKey[j][k] = keys[((i + 1) * 4) + j][k];
+        // Verbose print
+        if(verbose) {
+            std::cout << "Round " << i + 1 << std::endl;
+            std::cout << "\tKey: ";
+            for(size_t j = 0; j < 4; j++) for(size_t k = 0; j < 4; k++) std::cout << std::hex << std::setw(2) << std::setfill('0') << roundKey[j][k];
+        };
+        
     }
 }
