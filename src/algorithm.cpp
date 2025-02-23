@@ -107,7 +107,7 @@ void aes(uint8_t text[4][4], uint8_t key[4][4], uint8_t result[4][4], bool encry
         for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) roundKey[j][k] = keys[((i + 1) * 4) + j][k];
         // Verbose print
         if(verbose) {
-            std::cout << "Round " << i + 1 << std::endl;
+            std::cout << "Round " << std::dec << i + 1 << std::endl;
             std::cout << "\tKey: ";
             for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (int) roundKey[j][k] << (j == 3 && k == 3 ? '\n' : ' ');
         };
