@@ -63,6 +63,33 @@ void addRoundKey(uint8_t bytes[4][4], uint8_t key[4][4]) {
     }
 }
 
-void aes(uint8_t text[4][4], uint8_t key[4][4], bool verbose) {
+void keyG(uint8_t word[4], size_t round) {
+    // Shift columns of word
+    uint8_t temp = word[0];
+    for(size_t i = 0; i < 3; i++) word[i] = word[i + 1];
+    word[3] = temp;
+    // Perform s-box on each byte
+    for(size_t i = 0; i < 4; i++) word[i] = FORWARD_S_BOX[word[i] >> 4][word[i] & 0xF];
+    // Add round constant to leftmost byte
+    word[0] = word[0] ^ ROUND_CONSTANT[round];
+}
 
+void aes(uint8_t text[4][4], uint8_t key[4][4], bool verbose) {
+    // Key storage
+    uint8_t keys[48][4];
+    // First four items in keys array are original key
+    for(size_t i = 0; i < 4; i++) for(size_t j = 0; j < 4; j++) keys[i][j] = key[i][j];
+    // Generate ten keys
+    for(size_t i = 1; i < 12; i++) {
+        // Base address for this word
+        size_t base = i * 4;
+        // Copy last word
+        uint8_t lastCopy[4] = { keys[base-1][0], keys[base-1][1], keys[base-1][2], keys[base-1][3] };
+        // Perform G on lastCopy
+        keyG(lastCopy, i - 1);
+        // XOR w/ previous base word
+        for(size_t j = 0; j < 4; j++) keys[base][j] = lastCopy[j] ^ keys[base - 4][j];
+        // XOR rest
+        for(size_t j = 1; j < 4; j++) for(size_t k = 0; j < 4; k++) keys[base + j][k] = keys[base + j - 1][k] ^ keys[base + j - 4][k];
+    }
 }
