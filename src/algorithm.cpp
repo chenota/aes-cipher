@@ -1,10 +1,19 @@
 #include "algorithm.hpp"
 
-void subBytes(uint8_t bytes[4][4], const uint8_t SBOX[16][16]) {
+void subBytes(uint8_t bytes[4][4]) {
     // Substitute each byte as per selected s-box
     for(uint8_t i = 0; i < 4; i++) {
         for(uint8_t j = 0; j < 4; j++) {
-            bytes[i][j] = SBOX[bytes[i][j] >> 4][bytes[i][j] & 0xF];
+            bytes[i][j] = FORWARD_S_BOX[bytes[i][j] >> 4][bytes[i][j] & 0xF];
+        }
+    }
+}
+
+void invserseSubBytes(uint8_t bytes[4][4]) {
+    // Substitute each byte as per selected s-box
+    for(uint8_t i = 0; i < 4; i++) {
+        for(uint8_t j = 0; j < 4; j++) {
+            bytes[i][j] = REVERSE_S_BOX[bytes[i][j] >> 4][bytes[i][j] & 0xF];
         }
     }
 }
@@ -29,6 +38,28 @@ void shiftRows(uint8_t bytes[4][4]) {
     bytes[3][1] = bytes_copy[0][1];
     bytes[3][2] = bytes_copy[1][2];
     bytes[3][3] = bytes_copy[2][3];
+}
+
+void invserseShiftRows(uint8_t bytes[4][4]) {
+    // Make a copy of the bytes matrix
+    uint8_t bytes_copy[4][4];
+    std::copy(&bytes[0][0], &bytes[0][0]+16, &bytes_copy[0][0]);
+    // Update rows of original matrix
+    bytes[1][1] = bytes_copy[0][1];
+    bytes[2][2] = bytes_copy[0][2];
+    bytes[3][3] = bytes_copy[0][3];
+
+    bytes[2][1] = bytes_copy[1][1];
+    bytes[3][2] = bytes_copy[1][2];
+    bytes[0][3] = bytes_copy[1][3];
+
+    bytes[3][1] = bytes_copy[2][1];
+    bytes[0][2] = bytes_copy[2][2];
+    bytes[1][3] = bytes_copy[2][3];
+
+    bytes[0][1] = bytes_copy[3][1];
+    bytes[1][2] = bytes_copy[3][2];
+    bytes[2][3] = bytes_copy[3][3];
 }
 
 uint8_t fastExponent(uint8_t x, uint8_t n) {
@@ -67,6 +98,19 @@ void mixColumns(uint8_t bytes[4][4]) {
     }
 }
 
+void inverseMixColumns(uint8_t bytes[4][4]) {
+    // Make a copy of the bytes matrix
+    uint8_t bytes_copy[4][4];
+    std::copy(&bytes[0][0], &bytes[0][0]+16, &bytes_copy[0][0]);
+    // For each of the four columns...
+    for(uint8_t i = 0; i < 4; i++) {
+        bytes[i][0] = fastMultiply(bytes_copy[i][0], 14) ^ fastMultiply(bytes_copy[i][1], 11) ^ fastMultiply(bytes_copy[i][2], 13) ^ fastMultiply(bytes_copy[i][3], 9);
+        bytes[i][1] = fastMultiply(bytes_copy[i][0], 9) ^ fastMultiply(bytes_copy[i][1], 14) ^ fastMultiply(bytes_copy[i][2], 11) ^ fastMultiply(bytes_copy[i][3], 13);
+        bytes[i][2] = fastMultiply(bytes_copy[i][0], 13) ^ fastMultiply(bytes_copy[i][1], 9) ^ fastMultiply(bytes_copy[i][2], 14) ^ fastMultiply(bytes_copy[i][3], 11);
+        bytes[i][3] = fastMultiply(bytes_copy[i][0], 11) ^ fastMultiply(bytes_copy[i][1], 13) ^ fastMultiply(bytes_copy[i][2], 9) ^ fastMultiply(bytes_copy[i][3], 14);
+    }
+}
+
 void addRoundKey(uint8_t bytes[4][4], uint8_t key[4][4]) {
     // XOR each text value with key value
     for(uint8_t i = 0; i < 4; i++) {
@@ -92,15 +136,8 @@ void print44(uint8_t text[4][4]) {
 }
 
 void aes(uint8_t text[4][4], uint8_t key[4][4], uint8_t result[4][4], bool encrypt, bool verbose) {
-    // Verbose print
-    if(verbose) {
-        std::cout << "Round 0" << std::endl;
-        std::cout << " Key:           ";
-        print44(key);
-        std::cout << " Add Round Key: ";
-        addRoundKey(text, key);
-        print44(text);
-    }
+    // Copy text into result
+    for(size_t i = 0; i < 4; i++) for(size_t j = 0; j < 4; j++) result[i][j] = text[i][j];
     // Key storage
     uint8_t keys[48][4];
     // First four items in keys array are original key
@@ -119,41 +156,88 @@ void aes(uint8_t text[4][4], uint8_t key[4][4], uint8_t result[4][4], bool encry
         // XOR rest
         for(size_t j = 1; j < 4; j++) for(size_t k = 0; k < 4; k++) keys[base + j][k] = keys[base + j - 1][k] ^ keys[base + j - 4][k];
     }
+    // Generate zeroth round key
+    uint8_t roundKey[4][4];
+    if(encrypt) {
+        for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) roundKey[j][k] = keys[j][k];
+    } else {
+        for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) roundKey[j][k] = keys[40 + j][k];
+    }
+    // Verbose print
+    if(verbose) {
+        std::cout << "Round 0" << std::endl;
+        std::cout << " Key:           " << (encrypt ? "" : " ");
+        print44(roundKey);
+        std::cout << " Add Round Key: " << (encrypt ? "" : " ");
+        addRoundKey(result, roundKey);
+        print44(result);
+    }
     // Ten rounds
     for(size_t i = 0; i < 10; i++) {
-        // Key
-        uint8_t roundKey[4][4];
         // Fill round key
-        for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) roundKey[j][k] = keys[((i + 1) * 4) + j][k];
+        for(size_t j = 0; j < 4; j++) for(size_t k = 0; k < 4; k++) roundKey[j][k] = keys[(encrypt ? (i + 1) * 4 : 40 - ((i + 1) * 4)) + j][k];
         // Verbose print
         if(verbose) {
             std::cout << "Round " << std::dec << i + 1 << std::endl;
-            std::cout << " Key:           ";
-            print44(text);
+            std::cout << " Key:           " << (encrypt ? "" : " ");
+            print44(roundKey);
         };
-        // SubBytes step
-        subBytes(text, FORWARD_S_BOX);
-        if(verbose) {
-            std::cout << " SubBytes:      ";
-            print44(text);
-        }
-        // ShiftRows step
-        shiftRows(text);
-        if(verbose) {
-            std::cout << " ShiftRows:     ";
-            print44(text);
-        }
-        // MixColumns step
-        mixColumns(text);
-        if(verbose) {
-            std::cout << " MixColumns:    ";
-            print44(text);
-        }
-        // Add round key step
-        addRoundKey(text, roundKey);
-        if(verbose) {
-            std::cout << " Add Round Key: ";
-            print44(text);
+        if(encrypt) {
+            // SubBytes step
+            subBytes(result);
+            if(verbose) {
+                std::cout << " SubBytes:      ";
+                print44(result);
+            }
+            // ShiftRows step
+            shiftRows(result);
+            if(verbose) {
+                std::cout << " ShiftRows:     ";
+                print44(result);
+            }
+            // MixColumns step
+            if(i != 9) {
+                mixColumns(result);
+                if(verbose) {
+                    std::cout << " MixColumns:    ";
+                    print44(result);
+                }
+            }
+            // Add round key step
+            addRoundKey(result, roundKey);
+            if(verbose) {
+                std::cout << " Add Round Key: ";
+                print44(result);
+            }
+        } else {
+            // Inverse shiftrows
+            invserseShiftRows(result);
+            if(verbose) {
+                std::cout << " INV ShiftRows:  ";
+                print44(result);
+            }
+            // Inverse sub bytes
+            invserseSubBytes(result);
+            if(verbose) {
+                std::cout << " INV SubBytes:   ";
+                print44(result);
+            }
+            // Add round key step
+            addRoundKey(result, roundKey);
+            if(verbose) {
+                std::cout << " Add Round Key:  ";
+                print44(result);
+            }
+            // Inverse MixColumns step
+            if(i != 9) {
+                inverseMixColumns(result);
+                if(verbose) {
+                    std::cout << " INV MixColumns: ";
+                    print44(result);
+                }
+            }
         }
     }
+    // Add extra newline for verbose
+    if(verbose) std::cout << std::endl;
 }

@@ -71,6 +71,9 @@ int main(int argc, char *argv[]) {
     uint8_t result[4][4];
     // Run AES algorithm
     aes(text, key, result, mode == ENCRYPT, print_mode == VERBOSE);
+    // Print result
+    for(size_t i = 0; i < 4; i++) for(size_t j = 0; j < 4; j++) std::cout << std::hex << std::setw(2) << std::setfill('0') << (int) result[i][j];
+    std::cout << std::endl;
     // Return success
     return 0;
 }
